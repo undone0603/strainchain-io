@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>StrainChain.io - Cannabis Provenance Protocol</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: { 900: '#0f172a', 800: '#1e293b', 700: '#334155', 600: '#475569' },
+                        chain: { 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' },
+                        nft: { 300: '#c4b5fd', 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed' },
+                        rarity: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' },
+                        surface: { 50: '#f8fafc', 100: '#e2e8f0', 200: '#cbd5e1', 700: '#1a2332', 800: '#111827', 900: '#0a0f1a' }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        :root {
+            --green-glow: rgba(34, 197, 94, 0.4);
+            --purple-glow: rgba(139, 92, 246, 0.3);
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #0a0f1a; color: #e2e8f0; }
+
+        /* Animated gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #4ade80, #22c55e, #16a34a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-text-purple {
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Glow pulse CTA */
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 8px var(--green-glow), 0 0 24px rgba(34,197,94,0.15); }
+            50% { box-shadow: 0 0 16px var(--green-glow), 0 0 48px rgba(34,197,94,0.25); }
+        }
+        .glow-btn { animation: glowPulse 2.5s ease-in-out infinite; }
+
+        /* Particle grid for hero */
+        @keyframes drift { 0%{transform:translateY(0)} 100%{transform:translateY(-20px)} }
+        .particle-grid {
+            background-image: radial-gradient(circle, rgba(74,222,128,0.08) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: drift 8s ease-in-out infinite alternate;
+        }
+
+        /* Fade-in on scroll */
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* Glassmorphism */
+        .glass { background: rgba(30,41,59,0.5); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
+
+        /* Animated border gradient for NFT card */
+        @keyframes borderRotate { 0%{--angle:0deg} 100%{--angle:360deg} }
+        .holographic-border {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .holographic-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 18px;
+            background: conic-gradient(from var(--border-angle, 0deg), #4ade80, #8b5cf6, #f59e0b, #22c55e, #a78bfa, #4ade80);
+            z-index: -1;
+            animation: rotateBorder 4s linear infinite;
+        }
+        @keyframes rotateBorder {
+            to { --border-angle: 360deg; }
+        }
+        @property --border-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        /* Flowing dots animation for METRC diagram */
+        @keyframes flowDot { 0%{offset-distance:0%} 100%{offset-distance:100%} }
+
+        /* Stepper line dash animation */
+        @keyframes dashMove { to { stroke-dashoffset: 0; } }
+
+        /* Phone screen transitions */
+        .phone-screen { transition: opacity 0.6s ease, transform 0.6s ease; }
+        .phone-screen.hidden-screen { opacity: 0; transform: scale(0.95); position: absolute; }
+        .phone-screen.active-screen { opacity: 1; transform: scale(1); position: relative; }
+
+        /* Pin drop animation */
+        @keyframes pinDrop { 0%{transform:translateY(-30px);opacity:0} 60%{transform:translateY(3px);opacity:1} 100%{transform:translateY(0);opacity:1} }
+        .pin-animate { animation: pinDrop 0.6s ease-out forwards; opacity: 0; }
+
+        /* Radar chart fill animation */
+        @keyframes radarFill { from{opacity:0;transform:scale(0.3)} to{opacity:1;transform:scale(1)} }
+        .radar-fill { animation: radarFill 1s ease-out forwards; transform-origin: center; }
+
+        /* Toast */
+        @keyframes slideInToast { from{transform:translateX(120%);opacity:0} to{transform:translateX(0);opacity:1} }
+        @keyframes slideOutToast { from{transform:translateX(0);opacity:1} to{transform:translateX(120%);opacity:0} }
+        .toast-in { animation: slideInToast 0.4s ease-out forwards; }
+        .toast-out { animation: slideOutToast 0.4s ease-in forwards; }
+
+        /* Stat count-up tabular numbers */
+        .stat-num { font-variant-numeric: tabular-nums; }
+
+        /* Progress bar animation */
+        @keyframes progressFill { from{width:0} }
+        .progress-animate { animation: progressFill 0.6s ease-out; }
+
+        /* Section padding consistency */
+        section { padding-top: 5rem; padding-bottom: 5rem; }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0f1a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+        /* Mobile menu */
+        .mobile-menu-overlay { transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .mobile-menu-panel { transition: transform 0.3s ease; }
+    </style>
+</head>
+<body data-id="0" class="antialiased">
+    <app-icon data-id="1" hidden data-icon="shield-check" data-palette="Green"></app-icon>
+
+    <!-- NAVIGATION -->
+    <nav data-id="2" id="navbar-z8k1" class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
+        <div data-id="3" class="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between h-16">
+            <a data-id="4" href="#" id="logo-a3m9" class="flex items-center gap-2 text-xl font-extrabold gradient-text tracking-tight">
+                🌿 StrainChain
+            </a>
+            <div data-id="5" id="desktop-nav-r7q2" class="hidden lg:flex items-center gap-6">
+                <a data-id="6" href="#how-it-works" class="text-sm text-surface-200 hover:text-chain-400 transition-colors">How It Works</a>
+                <a data-id="7" href="#metrc" class="text-sm text-surface-200 hover:text-chain-400 transition-colors">METRC Integration</a>
+                <a data-id="8" href="#nft" class="text-sm text-surface-200 hover:text-chain-400 transition-colors">NFT Certificates</a>
+                <a data-id="9" href="#michigan" class="text-sm text-surface-200 hover:text-chain-400 transition-colors">Michigan Pilot</a>
+                <a data-id="10" href="#qron" class="text-sm text-surface-200 hover:text-chain-400 transition-colors">$QRON Token</a>
+                <a data-id="11" href="#onboard" class="text-sm text-surface-200 hover:text-chain-400 transition-colors">For Dispensaries</a>
+            </div>
+            <div data-id="12" class="flex items-center gap-3">
+                <a data-id="13" href="#how-it-works" id="verify-cta-nav-w4d1" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-chain-500 text-navy-900 font-semibold text-sm rounded-lg glow-btn hover:bg-chain-400 transition-colors">
+                    <svg data-id="14" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path data-id="15" d="M9 12l2 2 4-4"/><path data-id="16" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Verify Product
+                </a>
+                <button data-id="17" id="mobile-menu-btn-k3f7" class="lg:hidden p-2 text-surface-200 hover:text-white" aria-label="Open menu">
+                    <svg data-id="18" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path data-id="19" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div data-id="20" id="mobile-overlay-p2n8" class="mobile-menu-overlay fixed inset-0 bg-black/60 z-[60] invisible opacity-0">
+    </div>
+    <div data-id="21" id="mobile-panel-j5v3" class="mobile-menu-panel fixed top-0 right-0 bottom-0 w-72 bg-navy-900 z-[70] transform translate-x-full flex flex-col">
+        <div data-id="22" class="flex items-center justify-between p-4 border-b border-white/10">
+            <span data-id="23" class="text-lg font-bold gradient-text">🌿 StrainChain</span>
+            <button data-id="24" id="mobile-close-btn-h8r2" class="p-2 text-surface-200 hover:text-white" aria-label="Close menu">
+                <svg data-id="25" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path data-id="26" d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div data-id="27" class="flex flex-col p-4 gap-1">
+            <a data-id="28" href="#how-it-works" class="mobile-nav-link py-3 px-3 text-surface-200 hover:text-chain-400 hover:bg-white/5 rounded-lg transition-colors">How It Works</a>
+            <a data-id="29" href="#metrc" class="mobile-nav-link py-3 px-3 text-surface-200 hover:text-chain-400 hover:bg-white/5 rounded-lg transition-colors">METRC Integration</a>
+            <a data-id="30" href="#nft" class="mobile-nav-link py-3 px-3 text-surface-200 hover:text-chain-400 hover:bg-white/5 rounded-lg transition-colors">NFT Certificates</a>
+            <a data-id="31" href="#michigan" class="mobile-nav-link py-3 px-3 text-surface-200 hover:text-chain-400 hover:bg-white/5 rounded-lg transition-colors">Michigan Pilot</a>
+            <a data-id="32" href="#qron" class="mobile-nav-link py-3 px-3 text-surface-200 hover:text-chain-400 hover:bg-white/5 rounded-lg transition-colors">$QRON Token</a>
+            <a data-id="33" href="#onboard" class="mobile-nav-link py-3 px-3 text-surface-200 hover:text-chain-400 hover:bg-white/5 rounded-lg transition-colors">For Dispensaries</a>
+        </div>
+        <div data-id="34" class="p-4 mt-auto">
+            <a data-id="35" href="#how-it-works" class="mobile-nav-link flex items-center justify-center gap-2 w-full py-3 bg-chain-500 text-navy-900 font-semibold rounded-lg glow-btn">
+                <svg data-id="36" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path data-id="37" d="M9 12l2 2 4-4"/><path data-id="38" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Verify Product
+            </a>
+        </div>
+    </div>
+
+    <main data-id="39">
+
+    <!-- SECTION 1: HERO -->
+    <section data-id="40" id="hero-s1a2" class="relative min-h-screen flex items-center justify-center overflow-hidden pt-16" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);">
+        <div data-id="41" class="particle-grid absolute inset-0 pointer-events-none"></div>
+        <div data-id="42" class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at 30% 40%, rgba(34,197,94,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, rgba(139,92,246,0.04) 0%, transparent 50%);"></div>
+        <div data-id="43" class="relative z-10 max-w-5xl mx-auto px-4 md:px-6 text-center">
+            <div data-id="44" class="reveal">
+                <h1 data-id="45" id="hero-headline-b4k9" class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
+                    Every Strain Has a Story.<br data-id="46">
+                    <span data-id="47" class="gradient-text">We Prove It.</span>
+                </h1>
+                <p data-id="48" id="hero-sub-c7m3" class="text-base sm:text-lg md:text-xl text-surface-200 max-w-3xl mx-auto mb-8 leading-relaxed">
+                    StrainChain is the blockchain-powered provenance protocol that connects cultivators, dispensaries, and consumers through immutable seed-to-sale verification — integrated directly with METRC.
+                </p>
+                <div data-id="49" class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+                    <a data-id="50" href="#how-it-works" id="hero-cta1-d2f5" class="w-full sm:w-auto px-8 py-3.5 bg-chain-500 text-navy-900 font-bold rounded-lg glow-btn hover:bg-chain-400 transition-colors text-center">
+                        Verify a Product
+                    </a>
+                    <a data-id="51" href="#onboard" id="hero-cta2-e9g1" class="w-full sm:w-auto px-8 py-3.5 border-2 border-white/30 text-white font-semibold rounded-lg hover:border-white/60 hover:bg-white/5 transition-all text-center">
+                        Onboard Your Dispensary
+                    </a>
+                </div>
+            </div>
+            <!-- Stats -->
+            <div data-id="52" id="stats-row-f3h8" class="reveal grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-10">
+                <div data-id="53" class="glass rounded-xl p-4 md:p-5">
+                    <div data-id="54" class="text-2xl md:text-3xl font-extrabold text-chain-400 stat-num" data-target="12847" data-suffix="">0</div>
+                    <div data-id="55" class="text-xs md:text-sm text-surface-200 mt-1">Strains Verified</div>
+                </div>
+                <div data-id="56" class="glass rounded-xl p-4 md:p-5">
+                    <div data-id="57" class="text-2xl md:text-3xl font-extrabold text-chain-400 stat-num" data-target="340" data-suffix="+">0</div>
+                    <div data-id="58" class="text-xs md:text-sm text-surface-200 mt-1">Licensed Partners</div>
+                </div>
+                <div data-id="59" class="glass rounded-xl p-4 md:p-5">
+                    <div data-id="60" class="text-2xl md:text-3xl font-extrabold text-chain-400 stat-num" data-target="99.7" data-suffix="%" data-decimal="true">0</div>
+                    <div data-id="61" class="text-xs md:text-sm text-surface-200 mt-1">Verification Accuracy</div>
+                </div>
+                <div data-id="62" class="glass rounded-xl p-4 md:p-5">
+                    <div data-id="63" class="text-2xl md:text-3xl font-extrabold text-chain-400 stat-num" data-target="4.2" data-suffix="M" data-decimal="true">0</div>
+                    <div data-id="64" class="text-xs md:text-sm text-surface-200 mt-1">Consumer Scans</div>
+                </div>
+            </div>
+            <!-- Powered by -->
+            <div data-id="65" class="reveal flex flex-col sm:flex-row items-center justify-center gap-3 text-sm text-surface-200">
+                <span data-id="66">Powered by <strong data-id="67" class="text-white">AuthiChain Protocol</strong></span>
+                <span data-id="68" class="hidden sm:inline text-white/20">|</span>
+                <span data-id="69" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-nft-500/15 text-nft-300 text-xs font-medium border border-nft-500/20">
+                    <svg data-id="70" class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><polygon data-id="71" points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/></svg>
+                    Built on Polygon
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: HOW IT WORKS -->
+    <section data-id="72" id="how-it-works" class="relative bg-surface-900">
+        <div data-id="73" class="max-w-7xl mx-auto px-4 md:px-6">
+            <div data-id="74" class="text-center mb-12 reveal">
+                <h2 data-id="75" id="s2-title-g4j6" class="text-2xl md:text-4xl font-extrabold mb-4">From Seed to Certainty in <span data-id="76" class="gradient-text">4 Steps</span></h2>
+                <p data-id="77" class="text-surface-200 max-w-2xl mx-auto">Our protocol makes verification effortless — point, scan, and know exactly what you have.</p>
+            </div>
+            <!-- Steps -->
+            <div data-id="78" class="reveal grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-4 relative mb-16">
+                <!-- Connecting lines (desktop only) -->
+                <svg data-id="79" class="hidden md:block absolute top-16 left-0 w-full h-4 pointer-events-none" preserveAspectRatio="none">
+                    <line data-id="80" x1="18%" y1="8" x2="82%" y2="8" stroke="rgba(74,222,128,0.2)" stroke-width="2" stroke-dasharray="8,6"/>
+                </svg>
+                <!-- Step 1 -->
+                <div data-id="81" class="glass rounded-2xl p-6 text-center relative hover:border-chain-500/30 transition-colors">
+                    <div data-id="82" class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-chain-500/15 flex items-center justify-center text-2xl">📱</div>
+                    <div data-id="83" class="text-xs font-bold text-chain-400 uppercase tracking-widest mb-2">Step 1</div>
+                    <h3 data-id="84" class="text-lg font-bold mb-2">Scan</h3>
+                    <p data-id="85" class="text-sm text-surface-200">Point your phone at any StrainChain QR code on the package</p>
+                </div>
+                <!-- Step 2 -->
+                <div data-id="86" class="glass rounded-2xl p-6 text-center relative hover:border-blue-500/30 transition-colors">
+                    <div data-id="87" class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-blue-500/15 flex items-center justify-center text-2xl">🔗</div>
+                    <div data-id="88" class="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2">Step 2</div>
+                    <h3 data-id="89" class="text-lg font-bold mb-2">Verify</h3>
+                    <p data-id="90" class="text-sm text-surface-200">Our protocol checks the blockchain record against METRC state data in real-time</p>
+                </div>
+                <!-- Step 3 -->
+                <div data-id="91" class="glass rounded-2xl p-6 text-center relative hover:border-nft-500/30 transition-colors">
+                    <div data-id="92" class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-nft-500/15 flex items-center justify-center text-2xl">📜</div>
+                    <div data-id="93" class="text-xs font-bold text-nft-400 uppercase tracking-widest mb-2">Step 3</div>
+                    <h3 data-id="94" class="text-lg font-bold mb-2">Certificate</h3>
+                    <p data-id="95" class="text-sm text-surface-200">View the NFT authentication certificate with full provenance chain</p>
+                </div>
+                <!-- Step 4 -->
+                <div data-id="96" class="glass rounded-2xl p-6 text-center relative hover:border-rarity-500/30 transition-colors">
+                    <div data-id="97" class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-rarity-500/15 flex items-center justify-center text-2xl">⭐</div>
+                    <div data-id="98" class="text-xs font-bold text-rarity-400 uppercase tracking-widest mb-2">Step 4</div>
+                    <h3 data-id="99" class="text-lg font-bold mb-2">Score</h3>
+                    <p data-id="100" class="text-sm text-surface-200">See the strain's rarity score, lab results, and community ratings</p>
+                </div>
+            </div>
+            <!-- Interactive Demo -->
+            <div data-id="101" class="reveal max-w-md mx-auto">
+                <div data-id="102" id="demo-phone-a1b2" class="glass rounded-3xl p-3 relative mx-auto" style="max-width: 320px;">
+                    <div data-id="103" class="bg-navy-900 rounded-2xl overflow-hidden relative" style="min-height: 420px;">
+                        <!-- Notch -->
+                        <div data-id="104" class="flex justify-center pt-2 pb-3">
+                            <div data-id="105" class="w-20 h-5 bg-black rounded-full"></div>
+                        </div>
+                        <!-- Demo screens -->
+                        <div data-id="106" id="demo-idle-s2a1" class="px-5 pb-5 text-center">
+                            <div data-id="107" class="w-24 h-24 mx-auto mb-4 rounded-2xl border-2 border-dashed border-chain-500/40 flex items-center justify-center">
+                                <svg data-id="108" class="w-10 h-10 text-chain-500/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect data-id="109" x="3" y="3" width="7" height="7" rx="1"/><rect data-id="110" x="14" y="3" width="7" height="7" rx="1"/><rect data-id="111" x="3" y="14" width="7" height="7" rx="1"/><rect data-id="112" x="14" y="14" width="7" height="7" rx="1"/></svg>
+                            </div>
+                            <p data-id="113" class="text-sm text-surface-200 mb-6">Position the QR code within the frame to begin verification</p>
+                            <button data-id="114" id="demo-scan-btn-c3d4" class="w-full py-3 bg-chain-500 text-navy-900 font-bold rounded-xl hover:bg-chain-400 transition-colors">
+                                Try Demo Scan
+                            </button>
+                        </div>
+                        <div data-id="115" id="demo-progress-s2b2" class="px-5 pb-5 hidden">
+                            <div data-id="116" id="demo-step-label-e5f6" class="text-xs font-bold text-chain-400 uppercase tracking-widest text-center mb-3">Scanning...</div>
+                            <div data-id="117" class="w-full bg-navy-700 rounded-full h-2 mb-5">
+                                <div data-id="118" id="demo-progress-bar-g7h8" class="h-2 rounded-full bg-chain-500 transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                            <div data-id="119" id="demo-anim-icon-i9j0" class="w-20 h-20 mx-auto mb-3 rounded-full bg-chain-500/10 flex items-center justify-center text-4xl animate-pulse">📱</div>
+                            <p data-id="120" id="demo-anim-text-k1l2" class="text-sm text-surface-200 text-center">Scanning package QR code...</p>
+                        </div>
+                        <div data-id="121" id="demo-result-s2c3" class="px-4 pb-4 hidden">
+                            <div data-id="122" class="flex items-center gap-2 mb-3">
+                                <div data-id="123" class="w-7 h-7 rounded-full bg-chain-500 flex items-center justify-center">
+                                    <svg data-id="124" class="w-4 h-4 text-navy-900" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path data-id="125" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                                <span data-id="126" class="text-sm font-bold text-chain-400">Verified Authentic</span>
+                            </div>
+                            <div data-id="127" class="bg-navy-800 rounded-xl p-3 space-y-2 text-xs border border-white/5">
+                                <div data-id="128" class="flex justify-between"><span data-id="129" class="text-surface-200">Strain</span><span data-id="130" class="font-bold text-white">Michigan Sunset OG</span></div>
+                                <div data-id="131" class="flex justify-between"><span data-id="132" class="text-surface-200">THC / CBD</span><span data-id="133" class="font-semibold text-chain-400">24.5% / 1.2%</span></div>
+                                <div data-id="134" class="flex justify-between"><span data-id="135" class="text-surface-200">Cultivator</span><span data-id="136" class="font-semibold">Great Lakes Cannabis Co.</span></div>
+                                <div data-id="137" class="flex justify-between"><span data-id="138" class="text-surface-200">Batch</span><span data-id="139" class="font-mono text-[11px]">#GLCC-2026-0847</span></div>
+                                <div data-id="140" class="flex justify-between items-center"><span data-id="141" class="text-surface-200">Lab</span><span data-id="142" class="font-semibold text-chain-400">PSI Labs ✅</span></div>
+                                <div data-id="143">
+                                    <div data-id="144" class="flex justify-between mb-1"><span data-id="145" class="text-surface-200">Rarity Score</span><span data-id="146" class="font-bold text-rarity-400">87/100</span></div>
+                                    <div data-id="147" class="w-full bg-navy-700 rounded-full h-1.5"><div data-id="148" class="h-1.5 rounded-full bg-rarity-500" style="width:87%"></div></div>
+                                </div>
+                                <div data-id="149" class="flex justify-between"><span data-id="150" class="text-surface-200">NFT Token</span><span data-id="151" class="font-mono text-nft-300 text-[11px]">#SC-00847</span></div>
+                                <div data-id="152" class="flex justify-between"><span data-id="153" class="text-surface-200">METRC Tag</span><span data-id="154" class="font-mono text-[9px] text-surface-200">1A40000000000...12847</span></div>
+                            </div>
+                            <button data-id="155" id="demo-reset-btn-m3n4" class="w-full mt-3 py-2.5 border border-white/20 text-white text-sm font-semibold rounded-xl hover:bg-white/5 transition-colors">
+                                Scan Another
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: METRC INTEGRATION -->
+    <section data-id="156" id="metrc" class="relative overflow-hidden" style="background: linear-gradient(180deg, #0a0f1a 0%, #111827 100%);">
+        <div data-id="157" class="max-w-7xl mx-auto px-4 md:px-6">
+            <div data-id="158" class="text-center mb-12 reveal">
+                <h2 data-id="159" id="s3-title-o5p6" class="text-2xl md:text-4xl font-extrabold mb-4">Direct METRC Integration — <span data-id="160" class="gradient-text">Zero Compliance Gaps</span></h2>
+            </div>
+            <div data-id="161" class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                <!-- Left content -->
+                <div data-id="162" class="reveal">
+                    <p data-id="163" class="text-surface-200 mb-8 leading-relaxed">
+                        StrainChain connects directly to Michigan's Metrc Connect API to pull real-time seed-to-sale tracking data. Every plant, package, and transfer is cryptographically anchored to the blockchain.
+                    </p>
+                    <div data-id="164" class="space-y-4">
+                        <div data-id="165" class="glass rounded-xl p-5 hover:border-chain-500/20 transition-colors">
+                            <div data-id="166" class="flex items-start gap-3">
+                                <div data-id="167" class="w-10 h-10 rounded-lg bg-chain-500/15 flex items-center justify-center flex-shrink-0">
+                                    <svg data-id="168" class="w-5 h-5 text-chain-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path data-id="169" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                </div>
+                                <div data-id="170">
+                                    <h4 data-id="171" class="font-bold mb-1">Real-Time Sync</h4>
+                                    <p data-id="172" class="text-sm text-surface-200">Automatic data pull from METRC for every tagged package</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div data-id="173" class="glass rounded-xl p-5 hover:border-blue-500/20 transition-colors">
+                            <div data-id="174" class="flex items-start gap-3">
+                                <div data-id="175" class="w-10 h-10 rounded-lg bg-blue-500/15 flex items-center justify-center flex-shrink-0">
+                                    <svg data-id="176" class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path data-id="177" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                </div>
+                                <div data-id="178">
+                                    <h4 data-id="179" class="font-bold mb-1">Compliance Shield</h4>
+                                    <p data-id="180" class="text-sm text-surface-200">Built-in MRA reporting and audit trail generation</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div data-id="181" class="glass rounded-xl p-5 hover:border-nft-500/20 transition-colors">
+                            <div data-id="182" class="flex items-start gap-3">
+                                <div data-id="183" class="w-10 h-10 rounded-lg bg-nft-500/15 flex items-center justify-center flex-shrink-0">
+                                    <svg data-id="184" class="w-5 h-5 text-nft-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path data-id="185" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path data-id="186" d="M14 2v6h6"/><path data-id="187" d="M9 15l2 2 4-4"/></svg>
+                                </div>
+                                <div data-id="188">
+                                    <h4 data-id="189" class="font-bold mb-1">Lab Result Anchoring</h4>
+                                    <p data-id="190" class="text-sm text-surface-200">COA data from PSI Labs, Confident Cannabis, and others immutably recorded</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right: Flow diagram -->
+                <div data-id="191" class="reveal flex justify-center">
+                    <svg data-id="192" id="metrc-diagram-q7r8" viewBox="0 0 400 500" class="w-full max-w-sm" style="filter: drop-shadow(0 0 20px rgba(34,197,94,0.1));">
+                        <!-- METRC Box -->
+                        <rect data-id="193" x="100" y="20" width="200" height="70" rx="12" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+                        <text data-id="194" x="200" y="50" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700" font-family="Inter, system-ui">METRC System</text>
+                        <text data-id="195" x="200" y="70" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="Inter, system-ui">State Tracking Data</text>
+                        <!-- Arrow 1 -->
+                        <line data-id="196" x1="200" y1="90" x2="200" y2="160" stroke="#4ade80" stroke-width="2" stroke-dasharray="6,4" opacity="0.5"/>
+                        <circle data-id="197" r="4" fill="#4ade80">
+                            <animateMotion data-id="198" dur="2s" repeatCount="indefinite" path="M200,95 L200,155"/>
+                        </circle>
+                        <!-- StrainChain Box -->
+                        <rect data-id="199" x="80" y="160" width="240" height="70" rx="12" fill="rgba(34,197,94,0.1)" stroke="#22c55e" stroke-width="1.5"/>
+                        <text data-id="200" x="200" y="192" text-anchor="middle" fill="#4ade80" font-size="14" font-weight="800" font-family="Inter, system-ui">🌿 StrainChain Protocol</text>
+                        <text data-id="201" x="200" y="212" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="Inter, system-ui">Verification Engine</text>
+                        <!-- Arrow 2 -->
+                        <line data-id="202" x1="200" y1="230" x2="200" y2="300" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="6,4" opacity="0.5"/>
+                        <circle data-id="203" r="4" fill="#a78bfa">
+                            <animateMotion data-id="204" dur="2s" repeatCount="indefinite" begin="0.7s" path="M200,235 L200,295"/>
+                        </circle>
+                        <!-- Polygon Box -->
+                        <rect data-id="205" x="100" y="300" width="200" height="70" rx="12" fill="rgba(139,92,246,0.1)" stroke="#8b5cf6" stroke-width="1.5"/>
+                        <text data-id="206" x="200" y="330" text-anchor="middle" fill="#c4b5fd" font-size="13" font-weight="700" font-family="Inter, system-ui">Polygon Blockchain</text>
+                        <text data-id="207" x="200" y="350" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="Inter, system-ui">Immutable Record</text>
+                        <!-- Arrow 3 -->
+                        <line data-id="208" x1="200" y1="370" x2="200" y2="430" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,4" opacity="0.5"/>
+                        <circle data-id="209" r="4" fill="#fbbf24">
+                            <animateMotion data-id="210" dur="2s" repeatCount="indefinite" begin="1.4s" path="M200,375 L200,425"/>
+                        </circle>
+                        <!-- Consumer Box -->
+                        <rect data-id="211" x="100" y="430" width="200" height="55" rx="12" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+                        <text data-id="212" x="200" y="462" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700" font-family="Inter, system-ui">📱 Consumer App</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: NFT CERTIFICATES -->
+    <section data-id="213" id="nft" class="relative overflow-hidden" style="background: linear-gradient(135deg, #1a1033 0%, #0f172a 40%, #1a1033 100%);">
+        <div data-id="214" class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at 50% 30%, rgba(139,92,246,0.08) 0%, transparent 60%);"></div>
+        <div data-id="215" class="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+            <div data-id="216" class="text-center mb-12 reveal">
+                <h2 data-id="217" id="s4-title-s9t0" class="text-2xl md:text-4xl font-extrabold mb-4">Every Product Gets a <span data-id="218" class="gradient-text-purple">Digital Birth Certificate</span></h2>
+            </div>
+            <!-- NFT Card -->
+            <div data-id="219" class="reveal flex justify-center mb-12">
+                <div data-id="220" class="holographic-border w-full max-w-sm">
+                    <div data-id="221" class="bg-navy-900 rounded-2xl p-6 relative overflow-hidden">
+                        <div data-id="222" class="absolute top-0 right-0 w-32 h-32 rounded-full bg-nft-500/5 blur-2xl"></div>
+                        <div data-id="223" class="flex items-center justify-between mb-5">
+                            <span data-id="224" class="text-xs font-bold text-nft-300 uppercase tracking-widest">StrainChain NFT Certificate</span>
+                            <span data-id="225" class="px-2 py-0.5 bg-nft-500/20 text-nft-300 text-[10px] font-bold rounded-full">Polygon</span>
+                        </div>
+                        <h3 data-id="226" class="text-xl font-extrabold mb-1">Michigan Sunset OG</h3>
+                        <p data-id="227" class="text-xs text-surface-200 mb-4">Genetics: (Sunset Sherbet × OG Kush) F1 Phenotype #3</p>
+                        <div data-id="228" class="grid grid-cols-3 gap-2 mb-4">
+                            <div data-id="229" class="bg-navy-800 rounded-lg p-2 text-center">
+                                <div data-id="230" class="text-[10px] text-surface-200">Myrcene</div>
+                                <div data-id="231" class="text-sm font-bold text-chain-400">1.2%</div>
+                            </div>
+                            <div data-id="232" class="bg-navy-800 rounded-lg p-2 text-center">
+                                <div data-id="233" class="text-[10px] text-surface-200">Limonene</div>
+                                <div data-id="234" class="text-sm font-bold text-rarity-400">0.8%</div>
+                            </div>
+                            <div data-id="235" class="bg-navy-800 rounded-lg p-2 text-center">
+                                <div data-id="236" class="text-[10px] text-surface-200">Caryophyllene</div>
+                                <div data-id="237" class="text-sm font-bold text-nft-400">0.6%</div>
+                            </div>
+                        </div>
+                        <!-- QR Placeholder -->
+                        <div data-id="238" class="flex items-center gap-4 mb-4">
+                            <div data-id="239" class="w-16 h-16 bg-white rounded-lg p-1 flex-shrink-0">
+                                <div data-id="240" class="w-full h-full grid grid-cols-7 grid-rows-7 gap-px">
+                                    <div data-id="241" class="col-span-3 row-span-3 bg-navy-900 rounded-sm"></div>
+                                    <div data-id="242" class="bg-transparent"></div>
+                                    <div data-id="243" class="col-span-3 row-span-3 bg-navy-900 rounded-sm"></div>
+                                    <div data-id="244" class="col-span-3 bg-transparent"></div>
+                                    <div data-id="245" class="bg-navy-900"></div>
+                                    <div data-id="246" class="col-span-3 bg-transparent"></div>
+                                    <div data-id="247" class="col-span-7 flex gap-px"><div data-id="248" class="flex-1 bg-navy-900"></div><div data-id="249" class="flex-1 bg-transparent"></div><div data-id="250" class="flex-1 bg-navy-900"></div><div data-id="251" class="flex-1 bg-transparent"></div><div data-id="252" class="flex-1 bg-navy-900"></div><div data-id="253" class="flex-1 bg-transparent"></div><div data-id="254" class="flex-1 bg-navy-900"></div></div>
+                                    <div data-id="255" class="col-span-3 row-span-3 bg-navy-900 rounded-sm"></div>
+                                    <div data-id="256" class="bg-transparent"></div>
+                                    <div data-id="257" class="col-span-3 row-span-2 bg-transparent"></div>
+                                </div>
+                            </div>
+                            <div data-id="258" class="text-xs space-y-1.5">
+                                <div data-id="259" class="flex items-center gap-1.5">
+                                    <svg data-id="260" class="w-3 h-3 text-chain-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path data-id="261" d="M9 12l2 2 4-4"/><path data-id="262" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span data-id="263" class="text-surface-200">Lab Certified — PSI Labs</span>
+                                </div>
+                                <div data-id="264" class="flex items-center gap-1.5">
+                                    <svg data-id="265" class="w-3 h-3 text-nft-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon data-id="266" points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/></svg>
+                                    <span data-id="267" class="text-surface-200">Polygon Network Verified</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div data-id="268" class="border-t border-white/10 pt-3 flex justify-between items-center text-xs text-surface-200">
+                            <span data-id="269">Token ID: <span data-id="270" class="font-mono text-nft-300">#SC-00847</span></span>
+                            <span data-id="271" class="italic">Cultivator Signature ✍️</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Caption -->
+            <p data-id="272" class="text-center text-sm text-surface-200 mb-10 reveal">
+                Minted on Polygon&ensp;•&ensp;Gas-free for consumers&ensp;•&ensp;Transferable&ensp;•&ensp;Collectible
+            </p>
+            <!-- Three columns -->
+            <div data-id="273" class="reveal grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div data-id="274" class="glass rounded-2xl p-6 text-center hover:border-chain-500/20 transition-colors">
+                    <div data-id="275" class="text-3xl mb-3">🌱</div>
+                    <h4 data-id="276" class="font-bold mb-2 text-chain-400">For Cultivators</h4>
+                    <p data-id="277" class="text-sm text-surface-200">Prove your craft. Every harvest becomes a verifiable digital asset.</p>
+                </div>
+                <div data-id="278" class="glass rounded-2xl p-6 text-center hover:border-nft-500/20 transition-colors">
+                    <div data-id="279" class="text-3xl mb-3">🏪</div>
+                    <h4 data-id="280" class="font-bold mb-2 text-nft-400">For Dispensaries</h4>
+                    <p data-id="281" class="text-sm text-surface-200">Display authenticated inventory. Build consumer trust instantly.</p>
+                </div>
+                <div data-id="282" class="glass rounded-2xl p-6 text-center hover:border-rarity-500/20 transition-colors">
+                    <div data-id="283" class="text-3xl mb-3">🔍</div>
+                    <h4 data-id="284" class="font-bold mb-2 text-rarity-400">For Consumers</h4>
+                    <p data-id="285" class="text-sm text-surface-200">Collect verified strain NFTs. Know exactly what you're getting.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: RARITY SCORING -->
+    <section data-id="286" id="rarity" class="bg-surface-900">
+        <div data-id="287" class="max-w-7xl mx-auto px-4 md:px-6">
+            <div data-id="288" class="text-center mb-12 reveal">
+                <h2 data-id="289" id="s5-title-u1v2" class="text-2xl md:text-4xl font-extrabold mb-4">The StrainChain <span data-id="290" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Rarity Score</span></h2>
+                <p data-id="291" class="text-surface-200 max-w-2xl mx-auto">Our multi-dimensional scoring algorithm evaluates each strain across six key vectors.</p>
+            </div>
+            <div data-id="292" class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                <!-- Radar Chart (SVG) -->
+                <div data-id="293" class="reveal flex justify-center order-2 lg:order-1">
+                    <svg data-id="294" id="radar-chart-w3x4" viewBox="0 0 400 400" class="w-full max-w-sm">
+                        <!-- Grid hexagons -->
+                        <g data-id="295" transform="translate(200,200)">
+                            <polygon data-id="296" points="0,-150 130,-75 130,75 0,150 -130,75 -130,-75" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                            <polygon data-id="297" points="0,-112 97,-56 97,56 0,112 -97,56 -97,-56" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                            <polygon data-id="298" points="0,-75 65,-37 65,37 0,75 -65,37 -65,-37" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                            <polygon data-id="299" points="0,-37 32,-18 32,18 0,37 -32,18 -32,-18" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                            <!-- Axes -->
+                            <line data-id="300" x1="0" y1="0" x2="0" y2="-150" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                            <line data-id="301" x1="0" y1="0" x2="130" y2="-75" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                            <line data-id="302" x1="0" y1="0" x2="130" y2="75" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                            <line data-id="303" x1="0" y1="0" x2="0" y2="150" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                            <line data-id="304" x1="0" y1="0" x2="-130" y2="75" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                            <line data-id="305" x1="0" y1="0" x2="-130" y2="-75" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                            <!-- Data fill -->
+                            <polygon data-id="306" id="radar-data-y5z6"
+                                points="0,-138 114,-66 107,62 0,123 -117,60 -113,-65"
+                                fill="rgba(245,158,11,0.15)" stroke="#f59e0b" stroke-width="2"
+                                class="radar-fill" style="opacity:0;transform:scale(0.3);"/>
+                            <!-- Data points -->
+                            <circle data-id="307" cx="0" cy="-138" r="4" fill="#f59e0b" class="radar-fill" style="opacity:0;"/>
+                            <circle data-id="308" cx="114" cy="-66" r="4" fill="#f59e0b" class="radar-fill" style="opacity:0;"/>
+                            <circle data-id="309" cx="107" cy="62" r="4" fill="#f59e0b" class="radar-fill" style="opacity:0;"/>
+                            <circle data-id="310" cx="0" cy="123" r="4" fill="#f59e0b" class="radar-fill" style="opacity:0;"/>
+                            <circle data-id="311" cx="-117" cy="60" r="4" fill="#f59e0b" class="radar-fill" style="opacity:0;"/>
+                            <circle data-id="312" cx="-113" cy="-65" r="4" fill="#f59e0b" class="radar-fill" style="opacity:0;"/>
+                        </g>
+                        <!-- Labels -->
+                        <text data-id="313" x="200" y="35" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600" font-family="Inter,system-ui">Genetics</text>
+                        <text data-id="314" x="355" y="118" text-anchor="start" fill="#fbbf24" font-size="11" font-weight="600" font-family="Inter,system-ui">Terpenes</text>
+                        <text data-id="315" x="355" y="290" text-anchor="start" fill="#fbbf24" font-size="11" font-weight="600" font-family="Inter,system-ui">Potency</text>
+                        <text data-id="316" x="200" y="385" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600" font-family="Inter,system-ui">Cultivation</text>
+                        <text data-id="317" x="45" y="290" text-anchor="end" fill="#fbbf24" font-size="11" font-weight="600" font-family="Inter,system-ui">Origin</text>
+                        <text data-id="318" x="45" y="118" text-anchor="end" fill="#fbbf24" font-size="11" font-weight="600" font-family="Inter,system-ui">Lab Tier</text>
+                    </svg>
+                </div>
+                <!-- Score breakdown -->
+                <div data-id="319" class="reveal order-1 lg:order-2">
+                    <div data-id="320" class="flex items-center gap-3 mb-6">
+                        <div data-id="321" class="text-4xl md:text-5xl font-extrabold text-rarity-400 stat-num">87</div>
+                        <div data-id="322"><div data-id="323" class="text-sm text-surface-200">out of</div><div data-id="324" class="text-2xl font-bold">100</div></div>
+                    </div>
+                    <div data-id="325" class="space-y-3">
+                        <div data-id="326" class="glass rounded-xl p-4">
+                            <div data-id="327" class="flex justify-between mb-1.5"><span data-id="328" class="text-sm font-semibold">Genetics Uniqueness</span><span data-id="329" class="text-sm font-bold text-rarity-400">92</span></div>
+                            <div data-id="330" class="w-full bg-navy-700 rounded-full h-1.5"><div data-id="331" class="h-1.5 rounded-full bg-rarity-500" style="width:92%"></div></div>
+                            <p data-id="332" class="text-xs text-surface-200 mt-1">Rare F1 cross, limited phenotype</p>
+                        </div>
+                        <div data-id="333" class="glass rounded-xl p-4">
+                            <div data-id="334" class="flex justify-between mb-1.5"><span data-id="335" class="text-sm font-semibold">Terpene Profile</span><span data-id="336" class="text-sm font-bold text-rarity-400">88</span></div>
+                            <div data-id="337" class="w-full bg-navy-700 rounded-full h-1.5"><div data-id="338" class="h-1.5 rounded-full bg-rarity-500" style="width:88%"></div></div>
+                            <p data-id="339" class="text-xs text-surface-200 mt-1">High myrcene/limonene ratio</p>
+                        </div>
+                        <div data-id="340" class="glass rounded-xl p-4">
+                            <div data-id="341" class="flex justify-between mb-1.5"><span data-id="342" class="text-sm font-semibold">Potency</span><span data-id="343" class="text-sm font-bold text-rarity-400">85</span></div>
+                            <div data-id="344" class="w-full bg-navy-700 rounded-full h-1.5"><div data-id="345" class="h-1.5 rounded-full bg-rarity-500" style="width:85%"></div></div>
+                            <p data-id="346" class="text-xs text-surface-200 mt-1">Top 15% THC range</p>
+                        </div>
+                        <div data-id="347" class="glass rounded-xl p-4">
+                            <div data-id="348" class="flex justify-between mb-1.5"><span data-id="349" class="text-sm font-semibold">Cultivation Method</span><span data-id="350" class="text-sm font-bold text-rarity-400">82</span></div>
+                            <div data-id="351" class="w-full bg-navy-700 rounded-full h-1.5"><div data-id="352" class="h-1.5 rounded-full bg-rarity-500" style="width:82%"></div></div>
+                            <p data-id="353" class="text-xs text-surface-200 mt-1">Indoor, small-batch</p>
+                        </div>
+                        <div data-id="354" class="glass rounded-xl p-4">
+                            <div data-id="355" class="flex justify-between mb-1.5"><span data-id="356" class="text-sm font-semibold">Geographic Origin</span><span data-id="357" class="text-sm font-bold text-rarity-400">90</span></div>
+                            <div data-id="358" class="w-full bg-navy-700 rounded-full h-1.5"><div data-id="359" class="h-1.5 rounded-full bg-rarity-500" style="width:90%"></div></div>
+                            <p data-id="360" class="text-xs text-surface-200 mt-1">Michigan craft grow</p>
+                        </div>
+                        <div data-id="361" class="glass rounded-xl p-4">
+                            <div data-id="362" class="flex justify-between mb-1.5"><span data-id="363" class="text-sm font-semibold">Lab Certification Tier</span><span data-id="364" class="text-sm font-bold text-rarity-400">87</span></div>
+                            <div data-id="365" class="w-full bg-navy-700 rounded-full h-1.5"><div data-id="366" class="h-1.5 rounded-full bg-rarity-500" style="width:87%"></div></div>
+                            <p data-id="367" class="text-xs text-surface-200 mt-1">PSI Labs, full panel</p>
+                        </div>
+                    </div>
+                    <p data-id="368" class="text-sm text-surface-200 mt-6 italic">Rarity scores drive discovery. Collectors chase rare genetics. Cultivators earn premium positioning.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: MICHIGAN PILOT -->
+    <section data-id="369" id="michigan" style="background: linear-gradient(180deg, #0a0f1a 0%, #111827 100%);">
+        <div data-id="370" class="max-w-7xl mx-auto px-4 md:px-6">
+            <div data-id="371" class="text-center mb-12 reveal">
+                <h2 data-id="372" id="s6-title-a2b3" class="text-2xl md:text-4xl font-extrabold mb-4">Michigan First. <span data-id="373" class="gradient-text">The Nation Next.</span></h2>
+            </div>
+            <div data-id="374" class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+                <!-- Michigan SVG Map -->
+                <div data-id="375" class="reveal flex justify-center">
+                    <svg data-id="376" id="michigan-map-c4d5" viewBox="0 0 400 450" class="w-full max-w-sm">
+                        <!-- Simplified Michigan outline (Lower Peninsula) -->
+                        <path data-id="377" d="M180,80 L220,70 L260,75 L300,90 L330,120 L340,170 L335,220 L320,270 L300,310 L280,340 L250,370 L220,390 L190,395 L160,380 L140,350 L120,310 L110,270 L105,220 L110,170 L120,130 L150,100 Z"
+                              fill="rgba(34,197,94,0.08)" stroke="#22c55e" stroke-width="1.5" stroke-linejoin="round"/>
+                        <!-- Upper Peninsula hint -->
+                        <path data-id="378" d="M80,60 L100,50 L140,45 L180,50 L190,60 L180,70 L140,75 L100,70 Z"
+                              fill="rgba(34,197,94,0.05)" stroke="#22c55e" stroke-width="1" stroke-linejoin="round" opacity="0.6"/>
+                        <!-- City pins (animated) -->
+                        <!-- Detroit -->
+                        <g data-id="379" class="pin-animate" style="animation-delay:0.2s">
+                            <circle data-id="380" cx="310" cy="230" r="6" fill="#22c55e"/>
+                            <circle data-id="381" cx="310" cy="230" r="10" fill="none" stroke="#22c55e" stroke-width="1" opacity="0.4"/>
+                            <text data-id="382" x="310" y="252" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="600" font-family="Inter,system-ui">Detroit</text>
+                        </g>
+                        <!-- Ann Arbor -->
+                        <g data-id="383" class="pin-animate" style="animation-delay:0.5s">
+                            <circle data-id="384" cx="280" cy="255" r="5" fill="#4ade80"/>
+                            <text data-id="385" x="280" y="275" text-anchor="middle" fill="#4ade80" font-size="9" font-family="Inter,system-ui">Ann Arbor</text>
+                        </g>
+                        <!-- Grand Rapids -->
+                        <g data-id="386" class="pin-animate" style="animation-delay:0.8s">
+                            <circle data-id="387" cx="160" cy="200" r="5" fill="#4ade80"/>
+                            <text data-id="388" x="160" y="220" text-anchor="middle" fill="#4ade80" font-size="9" font-family="Inter,system-ui">Grand Rapids</text>
+                        </g>
+                        <!-- Traverse City -->
+                        <g data-id="389" class="pin-animate" style="animation-delay:1.1s">
+                            <circle data-id="390" cx="190" cy="120" r="5" fill="#4ade80"/>
+                            <text data-id="391" x="190" y="112" text-anchor="middle" fill="#4ade80" font-size="9" font-family="Inter,system-ui">Traverse City</text>
+                        </g>
+                        <!-- Lansing -->
+                        <g data-id="392" class="pin-animate" style="animation-delay:1.4s">
+                            <circle data-id="393" cx="230" cy="240" r="5" fill="#4ade80"/>
+                            <text data-id="394" x="230" y="260" text-anchor="middle" fill="#4ade80" font-size="9" font-family="Inter,system-ui">Lansing</text>
+                        </g>
+                    </svg>
+                </div>
+                <!-- Stats & Timeline -->
+                <div data-id="395" class="reveal">
+                    <!-- Key stats -->
+                    <div data-id="396" class="grid grid-cols-2 gap-4 mb-8">
+                        <div data-id="397" class="glass rounded-xl p-4 text-center">
+                            <div data-id="398" class="text-xl md:text-2xl font-extrabold text-chain-400">1,800+</div>
+                            <div data-id="399" class="text-xs text-surface-200 mt-1">Active Licenses (MRA)</div>
+                        </div>
+                        <div data-id="400" class="glass rounded-xl p-4 text-center">
+                            <div data-id="401" class="text-xl md:text-2xl font-extrabold text-chain-400">$3.2B</div>
+                            <div data-id="402" class="text-xs text-surface-200 mt-1">Annual Cannabis Sales</div>
+                        </div>
+                        <div data-id="403" class="glass rounded-xl p-4 text-center">
+                            <div data-id="404" class="text-xl md:text-2xl font-extrabold text-blue-400">METRC</div>
+                            <div data-id="405" class="text-xs text-surface-200 mt-1">State Tracking System</div>
+                        </div>
+                        <div data-id="406" class="glass rounded-xl p-4 text-center">
+                            <div data-id="407" class="text-xl md:text-2xl font-extrabold text-chain-400">Active</div>
+                            <div data-id="408" class="text-xs text-surface-200 mt-1">Pilot Integration</div>
+                        </div>
+                    </div>
+                    <!-- Timeline -->
+                    <div data-id="409" class="relative pl-6 border-l-2 border-chain-500/30 space-y-6">
+                        <div data-id="410" class="relative">
+                            <div data-id="411" class="absolute -left-[1.6rem] top-1 w-3 h-3 rounded-full bg-chain-500 border-2 border-navy-900"></div>
+                            <div data-id="412" class="text-xs font-bold text-chain-400 uppercase tracking-widest">Q1 2026</div>
+                            <div data-id="413" class="text-sm font-semibold mt-0.5">Michigan Pilot Launch</div>
+                        </div>
+                        <div data-id="414" class="relative">
+                            <div data-id="415" class="absolute -left-[1.6rem] top-1 w-3 h-3 rounded-full bg-chain-500/60 border-2 border-navy-900"></div>
+                            <div data-id="416" class="text-xs font-bold text-chain-400/70 uppercase tracking-widest">Q2 2026</div>
+                            <div data-id="417" class="text-sm font-semibold mt-0.5">50 Dispensary Partners</div>
+                        </div>
+                        <div data-id="418" class="relative">
+                            <div data-id="419" class="absolute -left-[1.6rem] top-1 w-3 h-3 rounded-full bg-chain-500/40 border-2 border-navy-900"></div>
+                            <div data-id="420" class="text-xs font-bold text-chain-400/50 uppercase tracking-widest">Q3 2026</div>
+                            <div data-id="421" class="text-sm font-semibold mt-0.5">METRC Full Integration</div>
+                        </div>
+                        <div data-id="422" class="relative">
+                            <div data-id="423" class="absolute -left-[1.6rem] top-1 w-3 h-3 rounded-full bg-chain-500/20 border-2 border-navy-900"></div>
+                            <div data-id="424" class="text-xs font-bold text-chain-400/40 uppercase tracking-widest">Q4 2026</div>
+                            <div data-id="425" class="text-sm font-semibold mt-0.5">Multi-State Expansion</div>
+                            <p data-id="426" class="text-xs text-surface-200 mt-0.5">Ohio, Illinois, Colorado</p>
+                        </div>
+                    </div>
+                    <!-- Quote -->
+                    <blockquote data-id="427" class="mt-8 glass rounded-xl p-5 border-l-4 border-chain-500">
+                        <p data-id="428" class="text-sm text-surface-200 italic leading-relaxed">"Michigan's regulatory framework and METRC infrastructure make it the ideal launchpad for blockchain-verified cannabis provenance."</p>
+                        <footer data-id="429" class="mt-2 text-xs text-chain-400 font-semibold">— StrainChain Team</footer>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 7: CONSUMER VERIFICATION EXPERIENCE -->
+    <section data-id="430" id="consumer" class="bg-surface-900">
+        <div data-id="431" class="max-w-7xl mx-auto px-4 md:px-6">
+            <div data-id="432" class="text-center mb-12 reveal">
+                <h2 data-id="433" id="s7-title-e6f7" class="text-2xl md:text-4xl font-extrabold mb-4">Trust What You <span data-id="434" class="gradient-text">Consume</span></h2>
+            </div>
+            <div data-id="435" class="reveal flex justify-center mb-10">
+                <!-- Phone mockup -->
+                <div data-id="436" class="glass rounded-3xl p-3 w-full max-w-[280px]">
+                    <div data-id="437" class="bg-navy-900 rounded-2xl overflow-hidden relative" style="min-height: 380px;">
+                        <div data-id="438" class="flex justify-center pt-2 pb-2">
+                            <div data-id="439" class="w-16 h-4 bg-black rounded-full"></div>
+                        </div>
+                        <div data-id="440" id="consumer-screens-g8h9" class="relative px-4 pb-4" style="min-height: 330px;">
+                            <!-- Screen 1: Camera -->
+                            <div data-id="441" class="consumer-screen active-screen" data-screen="0">
+                                <div data-id="442" class="w-full aspect-square bg-navy-800 rounded-xl flex items-center justify-center relative overflow-hidden mb-3">
+                                    <div data-id="443" class="absolute inset-4 border-2 border-chain-500/50 rounded-lg"></div>
+                                    <div data-id="444" class="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-chain-400 rounded-tl-md"></div>
+                                    <div data-id="445" class="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-chain-400 rounded-tr-md"></div>
+                                    <div data-id="446" class="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-chain-400 rounded-bl-md"></div>
+                                    <div data-id="447" class="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-chain-400 rounded-br-md"></div>
+                                    <svg data-id="448" class="w-8 h-8 text-chain-500/40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect data-id="449" x="3" y="3" width="7" height="7" rx="1"/><rect data-id="450" x="14" y="3" width="7" height="7" rx="1"/><rect data-id="451" x="3" y="14" width="7" height="7" rx="1"/><rect data-id="452" x="14" y="14" width="7" height="7" rx="1"/></svg>
+                                </div>
+                                <p data-id="453" class="text-xs text-center text-surface-200">Position QR code in frame</p>
+                            </div>
+                            <!-- Screen 2: Loading -->
+                            <div data-id="454" class="consumer-screen hidden-screen" data-screen="1">
+                                <div data-id="455" class="w-full aspect-square bg-navy-800 rounded-xl flex flex-col items-center justify-center mb-3">
+                                    <div data-id="456" class="w-16 h-16 rounded-full border-4 border-chain-500/20 border-t-chain-500 animate-spin mb-4"></div>
+                                    <p data-id="457" class="text-sm font-semibold text-chain-400">Verifying...</p>
+                                    <p data-id="458" class="text-xs text-surface-200 mt-1">Checking blockchain record</p>
+                                </div>
+                            </div>
+                            <!-- Screen 3: Verified -->
+                            <div data-id="459" class="consumer-screen hidden-screen" data-screen="2">
+                                <div data-id="460" class="w-full bg-navy-800 rounded-xl p-4 text-center mb-3">
+                                    <div data-id="461" class="w-14 h-14 mx-auto mb-3 rounded-full bg-chain-500/20 flex items-center justify-center">
+                                        <svg data-id="462" class="w-8 h-8 text-chain-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path data-id="463" d="M5 13l4 4L19 7"/></svg>
+                                    </div>
+                                    <div data-id="464" class="text-lg font-bold text-chain-400 mb-1">Verified ✅</div>
+                                    <div data-id="465" class="text-sm font-semibold">Michigan Sunset OG</div>
+                                    <div data-id="466" class="text-xs text-surface-200 mt-1">THC: 24.5% • CBD: 1.2%</div>
+                                    <div data-id="467" class="text-xs text-surface-200">Great Lakes Cannabis Co.</div>
+                                    <div data-id="468" class="mt-2 flex items-center justify-center gap-1">
+                                        <span data-id="469" class="text-xs text-rarity-400 font-bold">Rarity: 87/100</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p data-id="470" class="text-center text-sm text-surface-200 mb-8 reveal max-w-xl mx-auto">
+                No app download required. Works in any mobile browser. <strong data-id="471" class="text-white">Scan → Verify → Know.</strong>
+            </p>
+            <!-- Trust badges -->
+            <div data-id="472" class="reveal grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto">
+                <div data-id="473" class="glass rounded-xl p-3 text-center">
+                    <div data-id="474" class="text-lg mb-1">🔬</div>
+                    <div data-id="475" class="text-xs font-semibold">Lab Verified</div>
+                </div>
+                <div data-id="476" class="glass rounded-xl p-3 text-center">
+                    <div data-id="477" class="text-lg mb-1">⛓️</div>
+                    <div data-id="478" class="text-xs font-semibold">Blockchain Sealed</div>
+                </div>
+                <div data-id="479" class="glass rounded-xl p-3 text-center">
+                    <div data-id="480" class="text-lg mb-1">📊</div>
+                    <div data-id="481" class="text-xs font-semibold">METRC Tracked</div>
+                </div>
+                <div data-id="482" class="glass rounded-xl p-3 text-center">
+                    <div data-id="483" class="text-lg mb-1">🔒</div>
+                    <div data-id="484" class="text-xs font-semibold">Tamper-Proof</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 8: $QRON TOKEN -->
+    <section data-id="485" id="qron" class="relative overflow-hidden" style="background: linear-gradient(135deg, #0f2a1a 0%, #0f172a 30%, #1a1033 70%, #0f172a 100%);">
+        <div data-id="486" class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at 20% 50%, rgba(34,197,94,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(139,92,246,0.06) 0%, transparent 50%);"></div>
+        <div data-id="487" class="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+            <div data-id="488" class="text-center mb-12 reveal">
+                <h2 data-id="489" id="s8-title-i0j1" class="text-2xl md:text-4xl font-extrabold mb-4">
+                    <span data-id="490" class="gradient-text">$QRON</span> — The Utility Token Powering StrainChain
+                </h2>
+            </div>
+            <!-- Token utility cards -->
+            <div data-id="491" class="reveal grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+                <div data-id="492" class="glass rounded-2xl p-5 hover:border-chain-500/20 transition-colors">
+                    <div data-id="493" class="w-10 h-10 rounded-xl bg-chain-500/15 flex items-center justify-center mb-3">
+                        <svg data-id="494" class="w-5 h-5 text-chain-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path data-id="495" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </div>
+                    <h4 data-id="496" class="font-bold mb-1.5">Verification Gas</h4>
+                    <p data-id="497" class="text-sm text-surface-200">Every scan is a micro-transaction on the QRON network</p>
+                </div>
+                <div data-id="498" class="glass rounded-2xl p-5 hover:border-nft-500/20 transition-colors">
+                    <div data-id="499" class="w-10 h-10 rounded-xl bg-nft-500/15 flex items-center justify-center mb-3">
+                        <svg data-id="500" class="w-5 h-5 text-nft-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path data-id="501" d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                    </div>
+                    <h4 data-id="502" class="font-bold mb-1.5">Dispensary Staking</h4>
+                    <p data-id="503" class="text-sm text-surface-200">Partners stake $QRON to activate their storefront verification</p>
+                </div>
+                <div data-id="504" class="glass rounded-2xl p-5 hover:border-rarity-500/20 transition-colors">
+                    <div data-id="505" class="w-10 h-10 rounded-xl bg-rarity-500/15 flex items-center justify-center mb-3">
+                        <svg data-id="506" class="w-5 h-5 text-rarity-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path data-id="507" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </div>
+                    <h4 data-id="508" class="font-bold mb-1.5">Consumer Rewards</h4>
+                    <p data-id="509" class="text-sm text-surface-200">Earn $QRON for scanning and verifying products</p>
+                </div>
+                <div data-id="510" class="glass rounded-2xl p-5 hover:border-blue-500/20 transition-colors">
+                    <div data-id="511" class="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center mb-3">
+                        <svg data-id="512" class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path data-id="513" d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle data-id="514" cx="9" cy="7" r="4"/><path data-id="515" d="M23 21v-2a4 4 0 00-3-3.87"/><path data-id="516" d="M16 3.13a4 4 0 010 7.75"/></svg>
+                    </div>
+                    <h4 data-id="517" class="font-bold mb-1.5">Governance</h4>
+                    <p data-id="518" class="text-sm text-surface-200">Token holders vote on protocol upgrades and partner approvals</p>
+                </div>
+            </div>
+            <!-- Token info box -->
+            <div data-id="519" class="reveal max-w-lg mx-auto glass rounded-2xl p-6 border border-nft-500/20">
+                <h4 data-id="520" class="font-bold text-center mb-4 text-nft-300">Token Details</h4>
+                <div data-id="521" class="space-y-3 text-sm">
+                    <div data-id="522" class="flex justify-between items-center py-2 border-b border-white/5">
+                        <span data-id="523" class="text-surface-200">Network</span>
+                        <span data-id="524" class="font-semibold flex items-center gap-1.5">
+                            <svg data-id="525" class="w-3.5 h-3.5 text-nft-400" viewBox="0 0 24 24" fill="currentColor"><polygon data-id="526" points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/></svg>
+                            Polygon
+                        </span>
+                    </div>
+                    <div data-id="527" class="flex justify-between items-center py-2 border-b border-white/5">
+                        <span data-id="528" class="text-surface-200">Standard</span>
+                        <span data-id="529" class="font-semibold">ERC-20</span>
+                    </div>
+                    <div data-id="530" class="flex justify-between items-center py-2 border-b border-white/5">
+                        <span data-id="531" class="text-surface-200">Total Supply</span>
+                        <span data-id="532" class="font-semibold stat-num">1,000,000,000</span>
+                    </div>
+                    <div data-id="533" class="flex justify-between items-center py-2">
+                        <span data-id="534" class="text-surface-200">Utility</span>
+                        <span data-id="535" class="font-semibold text-xs">Verification • Staking • Rewards • Governance</span>
+                    </div>
+                </div>
+                <div data-id="536" class="mt-4 text-center">
+                    <span data-id="537" class="text-sm text-nft-300 font-medium">Learn more at <strong data-id="538">QRON.space</strong></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 9: DISPENSARY ONBOARDING -->
+    <section data-id="539" id="onboard" class="relative overflow-hidden" style="background: linear-gradient(135deg, #052e16 0%, #14532d 50%, #052e16 100%);">
+        <div data-id="540" class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at 50% 50%, rgba(34,197,94,0.1) 0%, transparent 60%);"></div>
+        <div data-id="541" class="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+            <div data-id="542" class="text-center mb-10 reveal">
+                <h2 data-id="543" id="s9-title-k2l3" class="text-2xl md:text-4xl font-extrabold mb-4">Ready to Authenticate Your Inventory?</h2>
+                <p data-id="544" class="text-surface-100/80 max-w-2xl mx-auto">Join 340+ licensed dispensaries already using StrainChain to build consumer trust and streamline METRC compliance.</p>
+            </div>
+            <div data-id="545" class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+                <!-- Steps -->
+                <div data-id="546" class="reveal">
+                    <h3 data-id="547" class="text-lg font-bold mb-6">Onboarding in 4 Simple Steps</h3>
+                    <div data-id="548" class="space-y-5">
+                        <div data-id="549" class="flex items-start gap-4">
+                            <div data-id="550" class="w-9 h-9 rounded-full bg-chain-500 flex items-center justify-center flex-shrink-0 text-navy-900 font-bold text-sm">1</div>
+                            <div data-id="551">
+                                <h4 data-id="552" class="font-semibold">Submit Your MRA License Number</h4>
+                                <p data-id="553" class="text-sm text-surface-100/70">We verify your active Michigan license status</p>
+                            </div>
+                        </div>
+                        <div data-id="554" class="flex items-start gap-4">
+                            <div data-id="555" class="w-9 h-9 rounded-full bg-chain-500/80 flex items-center justify-center flex-shrink-0 text-navy-900 font-bold text-sm">2</div>
+                            <div data-id="556">
+                                <h4 data-id="557" class="font-semibold">Connect Your METRC API Credentials</h4>
+                                <p data-id="558" class="text-sm text-surface-100/70">Secure, encrypted connection to your tracking data</p>
+                            </div>
+                        </div>
+                        <div data-id="559" class="flex items-start gap-4">
+                            <div data-id="560" class="w-9 h-9 rounded-full bg-chain-500/60 flex items-center justify-center flex-shrink-0 text-navy-900 font-bold text-sm">3</div>
+                            <div data-id="561">
+                                <h4 data-id="562" class="font-semibold">We Verify and Activate Your Storefront</h4>
+                                <p data-id="563" class="text-sm text-surface-100/70">Full profile setup with branding and inventory sync</p>
+                            </div>
+                        </div>
+                        <div data-id="564" class="flex items-start gap-4">
+                            <div data-id="565" class="w-9 h-9 rounded-full bg-chain-500/40 flex items-center justify-center flex-shrink-0 text-navy-900 font-bold text-sm">4</div>
+                            <div data-id="566">
+                                <h4 data-id="567" class="font-semibold">Start Issuing NFT Certificates</h4>
+                                <p data-id="568" class="text-sm text-surface-100/70">Every product gets a verifiable digital identity</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Form -->
+                <div data-id="569" class="reveal">
+                    <form data-id="570" id="onboard-form-m4n5" class="glass rounded-2xl p-6 md:p-8 border border-chain-500/20">
+                        <div data-id="571" class="space-y-4">
+                            <div data-id="572">
+                                <label data-id="573" for="dispensary-name-o6p7" class="block text-sm font-semibold mb-1.5">Dispensary Name <span data-id="574" class="text-chain-400">*</span></label>
+                                <input data-id="575" type="text" id="dispensary-name-o6p7" placeholder="e.g., Green Leaf Wellness" class="w-full px-4 py-3 bg-navy-800 border border-white/10 rounded-xl text-white text-base placeholder:text-surface-200/40 focus:outline-none focus:ring-2 focus:ring-chain-500/50 focus:border-chain-500/50 transition-all" required />
+                                <p data-id="576" id="name-error-q8r9" class="text-xs text-red-400 mt-1 hidden">Please enter your dispensary name</p>
+                            </div>
+                            <div data-id="577">
+                                <label data-id="578" for="license-num-s0t1" class="block text-sm font-semibold mb-1.5">License Number <span data-id="579" class="text-chain-400">*</span></label>
+                                <input data-id="580" type="text" id="license-num-s0t1" placeholder="e.g., AU-R-000123" class="w-full px-4 py-3 bg-navy-800 border border-white/10 rounded-xl text-white text-base placeholder:text-surface-200/40 focus:outline-none focus:ring-2 focus:ring-chain-500/50 focus:border-chain-500/50 transition-all" required />
+                                <p data-id="581" id="license-error-u2v3" class="text-xs text-red-400 mt-1 hidden">Please enter your license number</p>
+                            </div>
+                            <div data-id="582">
+                                <label data-id="583" for="contact-email-w4x5" class="block text-sm font-semibold mb-1.5">Contact Email <span data-id="584" class="text-chain-400">*</span></label>
+                                <input data-id="585" type="email" id="contact-email-w4x5" placeholder="you@dispensary.com" class="w-full px-4 py-3 bg-navy-800 border border-white/10 rounded-xl text-white text-base placeholder:text-surface-200/40 focus:outline-none focus:ring-2 focus:ring-chain-500/50 focus:border-chain-500/50 transition-all" required />
+                                <p data-id="586" id="email-error-y6z7" class="text-xs text-red-400 mt-1 hidden">Please enter a valid email address</p>
+                            </div>
+                            <button data-id="587" type="submit" id="submit-btn-a8b9" class="w-full py-3.5 bg-chain-500 text-navy-900 font-bold text-base rounded-xl hover:bg-chain-400 transition-colors glow-btn mt-2">
+                                Request Onboarding
+                            </button>
+                        </div>
+                        <p data-id="588" class="text-xs text-surface-100/50 text-center mt-4">Free during Michigan pilot. No credit card required.</p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 10: COMPLIANCE & TRUST -->
+    <section data-id="589" id="compliance" class="bg-surface-900 border-t border-white/5">
+        <div data-id="590" class="max-w-5xl mx-auto px-4 md:px-6 text-center">
+            <div data-id="591" class="reveal">
+                <p data-id="592" class="text-surface-200 leading-relaxed mb-8 max-w-3xl mx-auto">
+                    StrainChain operates in full compliance with Michigan Marijuana Regulatory Agency (MRA) regulations and integrates with state-mandated METRC tracking systems.
+                </p>
+                <div data-id="593" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                    <div data-id="594" class="glass rounded-xl p-4 text-center">
+                        <div data-id="595" class="text-lg mb-1.5">✅</div>
+                        <div data-id="596" class="text-xs font-semibold">METRC Certified</div>
+                    </div>
+                    <div data-id="597" class="glass rounded-xl p-4 text-center">
+                        <div data-id="598" class="text-lg mb-1.5">🏛️</div>
+                        <div data-id="599" class="text-xs font-semibold">MRA Compliant</div>
+                    </div>
+                    <div data-id="600" class="glass rounded-xl p-4 text-center">
+                        <div data-id="601" class="text-lg mb-1.5">🔐</div>
+                        <div data-id="602" class="text-xs font-semibold">HIPAA-Adjacent Data</div>
+                    </div>
+                    <div data-id="603" class="glass rounded-xl p-4 text-center">
+                        <div data-id="604" class="text-lg mb-1.5">🛡️</div>
+                        <div data-id="605" class="text-xs font-semibold">SOC 2 In Progress</div>
+                    </div>
+                </div>
+                <p data-id="606" class="text-sm text-surface-200">
+                    StrainChain is a product of <strong data-id="607" class="text-white">AuthiChain, Inc.</strong> — the decentralized authentication protocol for product verification.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer data-id="608" id="footer-c0d1" class="bg-navy-900 border-t border-white/5 pt-12 pb-6">
+        <div data-id="609" class="max-w-7xl mx-auto px-4 md:px-6">
+            <div data-id="610" class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+                <!-- Brand column -->
+                <div data-id="611" class="col-span-2 md:col-span-1">
+                    <div data-id="612" class="text-xl font-extrabold gradient-text mb-3">🌿 StrainChain</div>
+                    <p data-id="613" class="text-xs text-surface-200 leading-relaxed">Blockchain-powered cannabis authentication and provenance protocol.</p>
+                </div>
+                <!-- Products -->
+                <div data-id="614">
+                    <h4 data-id="615" class="text-sm font-bold mb-3 text-white">Products</h4>
+                    <ul data-id="616" class="space-y-2 text-sm text-surface-200">
+                        <li data-id="617"><a data-id="618" href="#" class="hover:text-chain-400 transition-colors">StrainChain</a></li>
+                        <li data-id="619"><a data-id="620" href="#" class="hover:text-chain-400 transition-colors">AuthiChain Protocol</a></li>
+                        <li data-id="621"><a data-id="622" href="#" class="hover:text-chain-400 transition-colors">QRON Studio</a></li>
+                        <li data-id="623"><a data-id="624" href="#" class="hover:text-chain-400 transition-colors">Telegram Mini-App</a></li>
+                    </ul>
+                </div>
+                <!-- Resources -->
+                <div data-id="625">
+                    <h4 data-id="626" class="text-sm font-bold mb-3 text-white">Resources</h4>
+                    <ul data-id="627" class="space-y-2 text-sm text-surface-200">
+                        <li data-id="628"><a data-id="629" href="#" class="hover:text-chain-400 transition-colors">Documentation</a></li>
+                        <li data-id="630"><a data-id="631" href="#" class="hover:text-chain-400 transition-colors">API Reference</a></li>
+                        <li data-id="632"><a data-id="633" href="#" class="hover:text-chain-400 transition-colors">Whitepaper</a></li>
+                        <li data-id="634"><a data-id="635" href="#" class="hover:text-chain-400 transition-colors">GitHub</a></li>
+                    </ul>
+                </div>
+                <!-- Company -->
+                <div data-id="636">
+                    <h4 data-id="637" class="text-sm font-bold mb-3 text-white">Company</h4>
+                    <ul data-id="638" class="space-y-2 text-sm text-surface-200">
+                        <li data-id="639"><a data-id="640" href="#" class="hover:text-chain-400 transition-colors">About</a></li>
+                        <li data-id="641"><a data-id="642" href="#" class="hover:text-chain-400 transition-colors">Blog</a></li>
+                        <li data-id="643"><a data-id="644" href="#" class="hover:text-chain-400 transition-colors">Careers</a></li>
+                        <li data-id="645"><a data-id="646" href="#" class="hover:text-chain-400 transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Social row -->
+            <div data-id="647" class="flex flex-wrap items-center justify-center gap-4 mb-8 text-sm">
+                <a data-id="648" href="#" class="text-surface-200 hover:text-chain-400 transition-colors font-medium">Twitter/X</a>
+                <span data-id="649" class="text-white/10">•</span>
+                <a data-id="650" href="#" class="text-surface-200 hover:text-chain-400 transition-colors font-medium">Telegram</a>
+                <span data-id="651" class="text-white/10">•</span>
+                <a data-id="652" href="#" class="text-surface-200 hover:text-chain-400 transition-colors font-medium">Discord</a>
+                <span data-id="653" class="text-white/10">•</span>
+                <a data-id="654" href="#" class="text-surface-200 hover:text-chain-400 transition-colors font-medium">GitHub</a>
+            </div>
+            <!-- Bottom -->
+            <div data-id="655" class="border-t border-white/5 pt-6 text-center space-y-2">
+                <p data-id="656" class="text-xs text-surface-200">
+                    © 2026 AuthiChain, Inc. All rights reserved.&ensp;|&ensp;<a data-id="657" href="#" class="hover:text-chain-400 transition-colors">Privacy Policy</a>&ensp;|&ensp;<a data-id="658" href="#" class="hover:text-chain-400 transition-colors">Terms of Service</a>
+                </p>
+                <p data-id="659" class="text-[10px] text-surface-200/50">StrainChain does not sell, distribute, or facilitate the sale of cannabis products.</p>
+                <p data-id="660" class="text-xs text-surface-200/40 mt-3">Made by Copilot</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SUCCESS TOAST -->
+    <div data-id="661" id="toast-e2f3" class="fixed bottom-6 right-6 z-[80] hidden">
+        <div data-id="662" class="glass rounded-xl p-4 pr-5 flex items-center gap-3 border border-chain-500/30 max-w-sm shadow-lg shadow-chain-500/10">
+            <div data-id="663" class="w-8 h-8 rounded-full bg-chain-500 flex items-center justify-center flex-shrink-0">
+                <svg data-id="664" class="w-5 h-5 text-navy-900" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path data-id="665" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div data-id="666">
+                <div data-id="667" class="text-sm font-bold text-chain-400">Request Submitted!</div>
+                <div data-id="668" class="text-xs text-surface-200">We'll review your application within 48 hours.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // MOBILE MENU
+        // ============================================
+        const mobileBtn = document.getElementById('mobile-menu-btn-k3f7');
+        const mobileOverlay = document.getElementById('mobile-overlay-p2n8');
+        const mobilePanel = document.getElementById('mobile-panel-j5v3');
+        const mobileClose = document.getElementById('mobile-close-btn-h8r2');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+        function openMobileMenu() {
+            mobileOverlay.classList.remove('invisible', 'opacity-0');
+            mobilePanel.classList.remove('translate-x-full');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeMobileMenu() {
+            mobileOverlay.classList.add('opacity-0');
+            mobilePanel.classList.add('translate-x-full');
+            setTimeout(() => { mobileOverlay.classList.add('invisible'); }, 300);
+            document.body.style.overflow = '';
+        }
+        mobileBtn.addEventListener('click', openMobileMenu);
+        mobileClose.addEventListener('click', closeMobileMenu);
+        mobileOverlay.addEventListener('click', closeMobileMenu);
+        mobileNavLinks.forEach(link => link.addEventListener('click', closeMobileMenu));
+
+        // ============================================
+        // INTERSECTION OBSERVER — Scroll Reveals
+        // ============================================
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+        // ============================================
+        // COUNT-UP ANIMATION
+        // ============================================
+        let statsAnimated = false;
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !statsAnimated) {
+                    statsAnimated = true;
+                    animateCounters();
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        const statsRow = document.getElementById('stats-row-f3h8');
+        if (statsRow) statsObserver.observe(statsRow);
+
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-num[data-target]');
+            counters.forEach(counter => {
+                const target = parseFloat(counter.dataset.target);
+                const suffix = counter.dataset.suffix || '';
+                const isDecimal = counter.dataset.decimal === 'true';
+                const duration = 2000;
+                const start = performance.now();
+
+                function update(now) {
+                    const elapsed = now - start;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    const current = target * eased;
+
+                    if (isDecimal) {
+                        counter.textContent = current.toFixed(1) + suffix;
+                    } else {
+                        counter.textContent = Math.floor(current).toLocaleString() + suffix;
+                    }
+
+                    if (progress < 1) requestAnimationFrame(update);
+                }
+                requestAnimationFrame(update);
+            });
+        }
+
+        // ============================================
+        // RADAR CHART SCROLL ANIMATION
+        // ============================================
+        const radarChart = document.getElementById('radar-chart-w3x4');
+        if (radarChart) {
+            const radarObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const fills = radarChart.querySelectorAll('.radar-fill');
+                        fills.forEach((el, i) => {
+                            setTimeout(() => {
+                                el.style.opacity = '1';
+                                el.style.transform = 'scale(1)';
+                            }, i * 100);
+                        });
+                        radarObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.3 });
+            radarObserver.observe(radarChart);
+        }
+
+        // ============================================
+        // DEMO SCAN INTERACTIVE
+        // ============================================
+        const demoScanBtn = document.getElementById('demo-scan-btn-c3d4');
+        const demoResetBtn = document.getElementById('demo-reset-btn-m3n4');
+        const demoIdle = document.getElementById('demo-idle-s2a1');
+        const demoProgress = document.getElementById('demo-progress-s2b2');
+        const demoResult = document.getElementById('demo-result-s2c3');
+        const demoBar = document.getElementById('demo-progress-bar-g7h8');
+        const demoStepLabel = document.getElementById('demo-step-label-e5f6');
+        const demoIcon = document.getElementById('demo-anim-icon-i9j0');
+        const demoText = document.getElementById('demo-anim-text-k1l2');
+
+        const demoSteps = [
+            { label: 'Scanning...', icon: '📱', text: 'Scanning package QR code...', progress: 25 },
+            { label: 'Verifying...', icon: '🔗', text: 'Checking blockchain against METRC...', progress: 50 },
+            { label: 'Certificate Found', icon: '📜', text: 'Loading NFT authentication certificate...', progress: 75 },
+            { label: 'Scoring...', icon: '⭐', text: 'Calculating rarity score...', progress: 100 }
+        ];
+
+        if (demoScanBtn) {
+            demoScanBtn.addEventListener('click', () => {
+                demoIdle.classList.add('hidden');
+                demoProgress.classList.remove('hidden');
+
+                let step = 0;
+                function runStep() {
+                    if (step < demoSteps.length) {
+                        const s = demoSteps[step];
+                        demoStepLabel.textContent = s.label;
+                        demoIcon.textContent = s.icon;
+                        demoText.textContent = s.text;
+                        demoBar.style.width = s.progress + '%';
+                        step++;
+                        setTimeout(runStep, 900);
+                    } else {
+                        setTimeout(() => {
+                            demoProgress.classList.add('hidden');
+                            demoResult.classList.remove('hidden');
+                        }, 500);
+                    }
+                }
+                runStep();
+            });
+        }
+
+        if (demoResetBtn) {
+            demoResetBtn.addEventListener('click', () => {
+                demoResult.classList.add('hidden');
+                demoBar.style.width = '0%';
+                demoIdle.classList.remove('hidden');
+            });
+        }
+
+        // ============================================
+        // CONSUMER PHONE AUTO-CYCLE
+        // ============================================
+        const consumerScreens = document.querySelectorAll('.consumer-screen');
+        let currentScreen = 0;
+
+        function cycleScreens() {
+            consumerScreens.forEach((screen, i) => {
+                if (i === currentScreen) {
+                    screen.classList.remove('hidden-screen');
+                    screen.classList.add('active-screen');
+                } else {
+                    screen.classList.remove('active-screen');
+                    screen.classList.add('hidden-screen');
+                }
+            });
+            currentScreen = (currentScreen + 1) % consumerScreens.length;
+        }
+
+        setInterval(cycleScreens, 3000);
+
+        // ============================================
+        // FORM VALIDATION & TOAST
+        // ============================================
+        const form = document.getElementById('onboard-form-m4n5');
+        const nameInput = document.getElementById('dispensary-name-o6p7');
+        const licenseInput = document.getElementById('license-num-s0t1');
+        const emailInput = document.getElementById('contact-email-w4x5');
+        const nameError = document.getElementById('name-error-q8r9');
+        const licenseError = document.getElementById('license-error-u2v3');
+        const emailError = document.getElementById('email-error-y6z7');
+        const toast = document.getElementById('toast-e2f3');
+
+        function validateField(input, errorEl, message) {
+            if (!input.value.trim()) {
+                errorEl.classList.remove('hidden');
+                errorEl.textContent = message;
+                input.classList.add('border-red-400');
+                return false;
+            }
+            if (input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
+                errorEl.classList.remove('hidden');
+                errorEl.textContent = 'Please enter a valid email address';
+                input.classList.add('border-red-400');
+                return false;
+            }
+            errorEl.classList.add('hidden');
+            input.classList.remove('border-red-400');
+            return true;
+        }
+
+        [nameInput, licenseInput, emailInput].forEach(input => {
+            input.addEventListener('blur', () => {
+                const errorEl = input === nameInput ? nameError : input === licenseInput ? licenseError : emailError;
+                const msg = input === nameInput ? 'Please enter your dispensary name' : input === licenseInput ? 'Please enter your license number' : 'Please enter a valid email';
+                validateField(input, errorEl, msg);
+            });
+        });
+
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const v1 = validateField(nameInput, nameError, 'Please enter your dispensary name');
+                const v2 = validateField(licenseInput, licenseError, 'Please enter your license number');
+                const v3 = validateField(emailInput, emailError, 'Please enter a valid email address');
+                if (v1 && v2 && v3) {
+                    form.reset();
+                    showToast();
+                }
+            });
+        }
+
+        function showToast() {
+            toast.classList.remove('hidden');
+            toast.firstElementChild.classList.remove('toast-out');
+            toast.firstElementChild.classList.add('toast-in');
+            setTimeout(() => {
+                toast.firstElementChild.classList.remove('toast-in');
+                toast.firstElementChild.classList.add('toast-out');
+                setTimeout(() => toast.classList.add('hidden'), 400);
+            }, 4000);
+        }
+
+        // ============================================
+        // NAVBAR BACKGROUND ON SCROLL
+        // ============================================
+        const navbar = document.getElementById('navbar-z8k1');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(10, 15, 26, 0.85)';
+                navbar.style.borderBottomColor = 'rgba(255,255,255,0.08)';
+            } else {
+                navbar.style.background = 'rgba(30, 41, 59, 0.5)';
+                navbar.style.borderBottomColor = 'rgba(255,255,255,0.05)';
+            }
+        });
+
+        // ============================================
+        // MICHIGAN PIN ANIMATION ON SCROLL
+        // ============================================
+        const michiganMap = document.getElementById('michigan-map-c4d5');
+        if (michiganMap) {
+            const pinObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const pins = michiganMap.querySelectorAll('.pin-animate');
+                        pins.forEach(pin => {
+                            pin.style.animationPlayState = 'running';
+                        });
+                        pinObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.3 });
+            pinObserver.observe(michiganMap);
+        }
+    </script>
+</body>
+</html>

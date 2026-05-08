@@ -1,0 +1,15 @@
+{
+  "name": "OG Kush Classic",
+  "description": "Classic OG Kush with verified origin and METRC-compliant tracking on StrainChain.",
+  "image": "https://strainchain.io/nfts/images/3.png",
+  "external_url": "https://strainchain.io/strain/3",
+  "attributes": [
+    { "trait_type": "Strain", "value": "OG Kush" },
+    { "trait_type": "Type", "value": "Indica" },
+    { "trait_type": "THC", "value": "20%" },
+    { "trait_type": "CBD", "value": "0.4%" },
+    { "trait_type": "Batch", "value": "OGK-2024-003" },
+    { "trait_type": "Verified", "value": "Yes" },
+    { "trait_type": "Protocol", "value": "StrainChain" }
+  ]
+}

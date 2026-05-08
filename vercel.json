@@ -5,6 +5,9 @@
     { "source": "/api/token", "destination": "/api/token.js" },
     { "source": "/api/nft", "destination": "/api/nft.js" },
     { "source": "/api/status", "destination": "/api/status.js" },
+    { "source": "/api/checkout", "destination": "/api/checkout.js" },
+    { "source": "/api/webhook", "destination": "/api/webhook.js" },
+    { "source": "/api/contact", "destination": "/api/contact.js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

@@ -89,7 +89,7 @@ module.exports = async (req, res) => {
         verifiedCount,
         suspiciousCount,
         verificationRate,
-        complianceScore: verificationRate >= 95 ? 'A' : verificationRate >= 85 ? 'B' : verificationRate >= 70 ? 'C' : 'F',
+        complianceScore: totalScans === 0 ? 'N/A' : verificationRate >= 95 ? 'A' : verificationRate >= 85 ? 'B' : verificationRate >= 70 ? 'C' : 'F',
       },
       topStrains,
       scansByDay,

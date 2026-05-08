@@ -1,0 +1,15 @@
+{
+  "name": "Gorilla Glue #4 Elite",
+  "description": "Elite Gorilla Glue #4 with top-tier potency and blockchain certification on StrainChain.",
+  "image": "https://strainchain.io/nfts/images/4.png",
+  "external_url": "https://strainchain.io/strain/4",
+  "attributes": [
+    { "trait_type": "Strain", "value": "Gorilla Glue #4" },
+    { "trait_type": "Type", "value": "Hybrid" },
+    { "trait_type": "THC", "value": "28%" },
+    { "trait_type": "CBD", "value": "0.2%" },
+    { "trait_type": "Batch", "value": "GG4-2024-004" },
+    { "trait_type": "Verified", "value": "Yes" },
+    { "trait_type": "Protocol", "value": "StrainChain" }
+  ]
+}

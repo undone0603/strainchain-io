@@ -1,0 +1,31 @@
+{
+  "name": "StrainChain Certificate #2 — Wedding Cake Reserve",
+  "description": "Blockchain-verified provenance certificate for Wedding Cake Reserve. Premium indoor-grown, triple-tested. METRC compliant. Part of the StrainChain Reserve Collection.",
+  "image": "https://strainchain.io/nfts/images/2.png",
+  "external_url": "https://strainchain.io/certificate/SC-002",
+  "background_color": "0a1628",
+  "attributes": [
+    { "trait_type": "Strain", "value": "Wedding Cake Reserve" },
+    { "trait_type": "Strain Type", "value": "Indica-Dominant Hybrid" },
+    { "trait_type": "THC %", "value": "27.1", "display_type": "number" },
+    { "trait_type": "CBD %", "value": "0.3", "display_type": "number" },
+    { "trait_type": "Cultivator", "value": "Emerald Triangle Farms" },
+    { "trait_type": "State", "value": "Michigan" },
+    { "trait_type": "METRC Tag", "value": "1A4060300003B06000000002" },
+    { "trait_type": "Batch ID", "value": "ETF-2026-002" },
+    { "trait_type": "Harvest Date", "value": "2026-02-03" },
+    { "trait_type": "Grow Method", "value": "Indoor" },
+    { "trait_type": "Lab Tested", "value": "Yes" },
+    { "trait_type": "Lab", "value": "Midwest Cannabis Labs" },
+    { "trait_type": "Certificate Type", "value": "Reserve Collection" },
+    { "trait_type": "Rarity", "value": "Rare" },
+    { "trait_type": "Protocol", "value": "StrainChain v2" },
+    { "trait_type": "Chain", "value": "Polygon Mainnet" }
+  ],
+  "chain": "polygon",
+  "contract": "0xAebfA6b08fb25b59748c93273a88880e20FFE437",
+  "token_id": 2,
+  "protocol": "StrainChain v2",
+  "verified": true,
+  "issued_at": "2026-02-10T00:00:00.000Z"
+}

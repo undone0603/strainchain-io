@@ -1786,5 +1786,46 @@ body { background: var(--navy-900); color: #e2e8f0; font-family: 'Inter', sans-s
 </div></div></section>
 <!-- END Polygon Contracts -->
 
+  <script>
+// Override dispensary form to POST to /api/dispensary instead of showing toast
+(function() {
+  var form = document.getElementById('dispensary-form');
+  if (!form) return;
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    var btn = document.getElementById('apply-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+    var data = {
+      name: form.querySelector('[placeholder="Dispensary Name"]') ? form.querySelector('[placeholder="Dispensary Name"]').value : '',
+      license: form.querySelector('[placeholder="LIC-12345"]') ? form.querySelector('[placeholder="LIC-12345"]').value : '',
+      state: form.querySelector('select') ? form.querySelector('select').value : 'Michigan',
+      city: form.querySelector('[placeholder="City"]') ? form.querySelector('[placeholder="City"]').value : '',
+      email: form.querySelector('[type="email"]') ? form.querySelector('[type="email"]').value : '',
+      metrc: form.querySelector('[placeholder*="METRC"]') ? form.querySelector('[placeholder*="METRC"]').value : ''
+    };
+    fetch('/api/dispensary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+      if (result.success) {
+        if (typeof showToast === 'function') showToast('Application submitted! Lead ID: ' + result.leadId + '. We will contact you within 48 hours.');
+        form.reset();
+      } else {
+        if (typeof showToast === 'function') showToast('Error: ' + (result.error || 'Submission failed'));
+      }
+    })
+    .catch(function() {
+      if (typeof showToast === 'function') showToast('Network error. Please try again or email authichain@gmail.com');
+    })
+    .finally(function() {
+      if (btn) { btn.disabled = false; btn.textContent = 'Apply Now'; }
+    });
+  }, true);
+})();
+</script>
 </body>
 </html>

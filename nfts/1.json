@@ -1,0 +1,29 @@
+{
+  "name": "StrainChain Certificate #1 — Blue Dream OG",
+  "description": "Blockchain-verified provenance certificate for Blue Dream OG. Seed-to-sale tracked via StrainChain Cannabis Provenance Protocol v2. METRC compliant.",
+  "image": "https://strainchain.io/nfts/images/1.png",
+  "external_url": "https://strainchain.io/certificate/SC-001",
+  "background_color": "0a1628",
+  "attributes": [
+    { "trait_type": "Strain", "value": "Blue Dream OG" },
+    { "trait_type": "Strain Type", "value": "Hybrid" },
+    { "trait_type": "THC %", "value": "22.4", "display_type": "number" },
+    { "trait_type": "CBD %", "value": "0.8", "display_type": "number" },
+    { "trait_type": "Cultivator", "value": "Green Valley Farms" },
+    { "trait_type": "State", "value": "Michigan" },
+    { "trait_type": "METRC Tag", "value": "1A4060300003B06000000001" },
+    { "trait_type": "Batch ID", "value": "GVF-2026-001" },
+    { "trait_type": "Harvest Date", "value": "2026-01-15" },
+    { "trait_type": "Lab Tested", "value": "Yes" },
+    { "trait_type": "Lab", "value": "Purity IQ Analytics" },
+    { "trait_type": "Certificate Type", "value": "Provenance" },
+    { "trait_type": "Protocol", "value": "StrainChain v2" },
+    { "trait_type": "Chain", "value": "Polygon Mainnet" }
+  ],
+  "chain": "polygon",
+  "contract": "0xAebfA6b08fb25b59748c93273a88880e20FFE437",
+  "token_id": 1,
+  "protocol": "StrainChain v2",
+  "verified": true,
+  "issued_at": "2026-01-20T00:00:00.000Z"
+}

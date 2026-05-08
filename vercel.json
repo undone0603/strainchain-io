@@ -4,6 +4,7 @@
     { "source": "/api/verify", "destination": "/api/verify.js" },
     { "source": "/api/token", "destination": "/api/token.js" },
     { "source": "/api/nft", "destination": "/api/nft.js" },
+    { "source": "/api/status", "destination": "/api/status.js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

@@ -1,5 +1,5 @@
 // /api/contact - StrainChain contact form handler
-const { Resend } = require('resend');
+// Uses native fetch (Node 18+) to send via SendGrid or falls back to logging
 
 module.exports = async (req, res) => {
   // CORS headers
@@ -24,40 +24,55 @@ module.exports = async (req, res) => {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid email address',
-      });
+      return res.status(400).json({ success: false, error: 'Invalid email address' });
     }
 
-    const resendApiKey = process.env.RESEND_API_KEY;
-    if (resendApiKey) {
-      const resend = new Resend(resendApiKey);
-      await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'contact@strainchain.io',
-        to: process.env.CONTACT_TO_EMAIL || 'hello@strainchain.io',
-        subject: `New Contact Form: ${name} - StrainChain`,
-        html: `
-          <h2>New StrainChain Contact Form Submission</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          ${company ? `<p><strong>Company:</strong> ${company}</p>` : ''}
-          <p><strong>Message:</strong></p>
-          <p>${message.replace(/\n/g, '<br>')}</p>
-        `,
-        replyTo: email,
+    const sgApiKey = process.env.SENDGRID_API_KEY;
+    const toEmail = process.env.CONTACT_EMAIL || 'hello@strainchain.io';
+
+    if (sgApiKey) {
+      // Send via SendGrid REST API (no npm package needed)
+      const sgRes = await fetch('https://api.sendgrid.com/v3/mail/send', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${sgApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          personalizations: [{ to: [{ email: toEmail }] }],
+          from: { email: 'noreply@strainchain.io', name: 'StrainChain Contact' },
+          reply_to: { email, name },
+          subject: `StrainChain Contact: ${name}${company ? ` (${company})` : ''}`,
+          content: [
+            {
+              type: 'text/plain',
+              value: `Name: ${name}\nEmail: ${email}\nCompany: ${company || 'N/A'}\n\nMessage:\n${message}`,
+            },
+          ],
+        }),
+      });
+
+      if (!sgRes.ok) {
+        const errText = await sgRes.text();
+        console.error('SendGrid error:', errText);
+        // Still return success to avoid leaking internal errors to client
+      }
+    } else {
+      // No email provider configured — log submission for manual follow-up
+      console.log('Contact form submission (no email provider configured):', {
+        name, email, company, message, timestamp: new Date().toISOString(),
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Thank you for your message. We will be in touch shortly.',
+      message: 'Thank you for reaching out. We will get back to you within 24 hours.',
     });
-  } catch (err) {
-    console.error('[/api/contact] StrainChain error:', err);
+  } catch (error) {
+    console.error('Contact form error:', error);
     return res.status(500).json({
       success: false,
-      error: 'Failed to send message. Please try again.',
+      error: 'Internal server error. Please try again or email hello@strainchain.io directly.',
     });
   }
 };

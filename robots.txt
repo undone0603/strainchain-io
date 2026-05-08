@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://strainchain.io/sitemap.xml
+
+# StrainChain - Cannabis Provenance Protocol
+# https://strainchain.io

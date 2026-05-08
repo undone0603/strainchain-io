@@ -1,0 +1,15 @@
+{
+  "name": "Sour Diesel Express",
+  "description": "Sativa-dominant Sour Diesel with energizing effects and verified provenance on StrainChain.",
+  "image": "https://strainchain.io/nfts/images/5.png",
+  "external_url": "https://strainchain.io/strain/5",
+  "attributes": [
+    { "trait_type": "Strain", "value": "Sour Diesel" },
+    { "trait_type": "Type", "value": "Sativa" },
+    { "trait_type": "THC", "value": "21%" },
+    { "trait_type": "CBD", "value": "0.3%" },
+    { "trait_type": "Batch", "value": "SD-2024-005" },
+    { "trait_type": "Verified", "value": "Yes" },
+    { "trait_type": "Protocol", "value": "StrainChain" }
+  ]
+}

@@ -1,6 +1,8 @@
 {
   "rewrites": [
     { "source": "/api/dispensary", "destination": "/api/dispensary.js" },
+    { "source": "/api/verify", "destination": "/api/verify.js" },
+    { "source": "/api/token", "destination": "/api/token.js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

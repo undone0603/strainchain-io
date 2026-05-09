@@ -1,35 +1,10 @@
 {
   "rewrites": [
-    { "source": "/api/dispensary", "destination": "/api/dispensary.js" },
-    { "source": "/api/verify", "destination": "/api/verify.js" },
-    { "source": "/api/token", "destination": "/api/token.js" },
-    { "source": "/api/nft", "destination": "/api/nft.js" },
-    { "source": "/api/status", "destination": "/api/status.js" },
-    { "source": "/api/checkout", "destination": "/api/checkout.js" },
-    { "source": "/api/webhook", "destination": "/api/webhook.js" },
-    { "source": "/api/analytics", "destination": "/api/analytics.js" },
-    { "source": "/api/contact", "destination": "/api/contact.js" },
-    { "source": "/api/compliance", "destination": "/api/compliance.js" },
-    { "source": "/api/strains", "destination": "/api/strains.js" },
-    { "source": "/api/lab", "destination": "/api/lab.js" },
-    { "source": "/api/grower", "destination": "/api/grower.js" },
-    { "source": "/api/transfer", "destination": "/api/transfer.js" },
-    { "source": "/api/batch", "destination": "/api/batch.js" },
-          { "source": "/api/recall", "destination": "/api/recall.js" },
-      { "source": "/api/metrc", "destination": "/api/metrc.js" },
-          { "source": "/api/inventory", "destination": "/api/inventory.js" },
-            { "source": "/api/license", "destination": "/api/license.js" },
-        { "source": "/api/payment", "destination": "/api/payment.js" },
-        { "source": "/api/subscription", "destination": "/api/subscription.js" },
-        { "source": "/api/report", "destination": "/api/report.js" },
-        { "source": "/api/notification", "destination": "/api/notification.js" },
-            { "source": "/api/user", "destination": "/api/user.js" },
-        { "source": "/api/delivery", "destination": "/api/delivery.js" },
-        { "source": "/api/cultivation", "destination": "/api/cultivation.js" },
-    { "source": "/api/testing", "destination": "/api/testing.js" },
-    { "source": "/api/packaging", "destination": "/api/packaging.js" },
-    { "source": "/api/retail", "destination": "/api/retail.js" },
-    { "source": "/api/(.*)", "destination": "/api/$1.js" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+    { "source": "/api/:path*", "destination": "/api/index.js" }
+  ],
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30
+    }
+  }
 }

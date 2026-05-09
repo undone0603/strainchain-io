@@ -7,9 +7,10 @@
     { "source": "/api/status", "destination": "/api/status.js" },
     { "source": "/api/checkout", "destination": "/api/checkout.js" },
     { "source": "/api/webhook", "destination": "/api/webhook.js" },
-            { "source": "/api/analytics", "destination": "/api/analytics.js" },
+    { "source": "/api/analytics", "destination": "/api/analytics.js" },
     { "source": "/api/contact", "destination": "/api/contact.js" },
-        { "source": "/api/strains", "destination": "/api/strains.js" },
+    { "source": "/api/strains", "destination": "/api/strains.js" },
+    { "source": "/api/(.*)", "destination": "/api/$1.js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

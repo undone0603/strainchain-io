@@ -9,6 +9,7 @@
     { "source": "/api/webhook", "destination": "/api/webhook.js" },
     { "source": "/api/analytics", "destination": "/api/analytics.js" },
     { "source": "/api/contact", "destination": "/api/contact.js" },
+        { "source": "/api/compliance", "destination": "/api/compliance.js" },
     { "source": "/api/strains", "destination": "/api/strains.js" },
     { "source": "/api/(.*)", "destination": "/api/$1.js" },
     { "source": "/(.*)", "destination": "/index.html" }

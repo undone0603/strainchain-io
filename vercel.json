@@ -17,6 +17,7 @@
     { "source": "/api/batch", "destination": "/api/batch.js" },
           { "source": "/api/recall", "destination": "/api/recall.js" },
       { "source": "/api/metrc", "destination": "/api/metrc.js" },
+          { "source": "/api/inventory", "destination": "/api/inventory.js" },
     { "source": "/api/(.*)", "destination": "/api/$1.js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]

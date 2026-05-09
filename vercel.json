@@ -25,6 +25,10 @@
         { "source": "/api/notification", "destination": "/api/notification.js" },
             { "source": "/api/user", "destination": "/api/user.js" },
         { "source": "/api/delivery", "destination": "/api/delivery.js" },
+        { "source": "/api/cultivation", "destination": "/api/cultivation.js" },
+    { "source": "/api/testing", "destination": "/api/testing.js" },
+    { "source": "/api/packaging", "destination": "/api/packaging.js" },
+    { "source": "/api/retail", "destination": "/api/retail.js" },
     { "source": "/api/(.*)", "destination": "/api/$1.js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]

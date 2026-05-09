@@ -23,6 +23,8 @@
         { "source": "/api/subscription", "destination": "/api/subscription.js" },
         { "source": "/api/report", "destination": "/api/report.js" },
         { "source": "/api/notification", "destination": "/api/notification.js" },
+            { "source": "/api/user", "destination": "/api/user.js" },
+        { "source": "/api/delivery", "destination": "/api/delivery.js" },
     { "source": "/api/(.*)", "destination": "/api/$1.js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]

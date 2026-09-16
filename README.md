@@ -1,5 +1,8 @@
-# StrainChain.io
+> **Superseded.** Do not deploy this repo.
+> Product lives in [`undone0603/authichain-unified`](https://github.com/undone0603/authichain-unified).
+> Live site: https://strainchain.io · Onboard: https://strainchain.io/onboard
+> Archive this repository in GitHub Settings after confirming the unified worker serves the apex.
 
-Cannabis Provenance Protocol — Blockchain-powered seed-to-sale verification integrated with METRC.
+# StrainChain.io (snapshot)
 
-Part of the AuthiChain ecosystem.
+Cannabis provenance landing snapshot. Not the protocol implementation.
